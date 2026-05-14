@@ -1,0 +1,84 @@
+{% extends 'shop/base.html' %}
+{% block title %}Mes Commandes — Le Médina{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="section-header">
+    <h2 class="section-title">📋 Mes Commandes</h2>
+    <a href="{% url 'panier' %}" class="btn btn-outline btn-sm">🛒 Voir le panier</a>
+  </div>
+
+  {% if commandes %}
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          {% if user.is_staff %}<th>Client</th>{% endif %}
+          <th>Total</th>
+          <th>Mode</th>
+          <th>Statut</th>
+          <th>Paiement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cmd in commandes %}
+        <tr>
+          <td style="color:var(--or);font-weight:600;">#{{ cmd.pk }}</td>
+          <td>{{ cmd.date_commande|date:"d/m/Y H:i" }}</td>
+          {% if user.is_staff %}<td>{{ cmd.utilisateur.username }}</td>{% endif %}
+          <td style="font-weight:600;color:var(--creme);">{{ cmd.total|floatformat:0 }} FCFA</td>
+          <td>
+            {% if cmd.mode_recuperation == 'livraison' %}
+              <span style="font-size:.75rem;color:var(--or);">🛵 Livraison</span>
+            {% else %}
+              <span style="font-size:.75rem;opacity:.6;">🏃 Retrait</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="statut
+              {% if cmd.statut == 'en_attente' %}statut-attente
+              {% elif cmd.statut == 'en_preparation' %}statut-preparation
+              {% elif cmd.statut == 'prete' %}statut-prete
+              {% else %}statut-livree{% endif %}">
+              {{ cmd.get_statut_display }}
+            </span>
+          </td>
+          <td>
+            {% if cmd.paye %}
+              <span class="statut statut-paye">✓ Payé</span>
+            {% else %}
+              <span class="statut statut-non-paye">⏳ En attente</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+              <a href="{% url 'detail_commande' cmd.pk %}" class="btn btn-outline btn-sm">Voir</a>
+              {% if not cmd.paye %}
+                <a href="{% url 'payer_commande' cmd.pk %}" class="btn btn-or btn-sm">Payer</a>
+              {% endif %}
+              {% if cmd.annulable %}
+                <a href="{% url 'supprimer_commande' cmd.pk %}" class="btn btn-danger btn-sm"
+                  onclick="return confirm('Annuler la commande #{{ cmd.pk }} ?')">✕</a>
+              {% else %}
+                <span class="btn btn-danger btn-sm" style="opacity:.35;cursor:not-allowed;" title="Délai d'annulation dépassé">🔒</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <p>Vous n'avez pas encore de commande.</p>
+    <a href="{% url 'plats' %}" class="btn btn-or">Commander maintenant</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

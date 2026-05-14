@@ -1,0 +1,97 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Dashboard — Admin Le Médina{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- STATS -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-label">Revenus total</div>
+    <div class="stat-value">{{ revenus_total|floatformat:0 }}</div>
+    <div class="stat-sub">FCFA encaissés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📅</div>
+    <div class="stat-label">Revenus aujourd'hui</div>
+    <div class="stat-value">{{ revenus_today|floatformat:0 }}</div>
+    <div class="stat-sub">FCFA aujourd'hui</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📋</div>
+    <div class="stat-label">Commandes total</div>
+    <div class="stat-value">{{ nb_commandes }}</div>
+    <div class="stat-sub">{{ nb_commandes_today }} aujourd'hui</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-label">En attente</div>
+    <div class="stat-value" style="color:#fcd34d;">{{ commandes_en_attente }}</div>
+    <div class="stat-sub">{{ commandes_en_preparation }} en préparation</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🍽️</div>
+    <div class="stat-label">Plats</div>
+    <div class="stat-value">{{ nb_plats }}</div>
+    <div class="stat-sub">au menu</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🥤</div>
+    <div class="stat-label">Boissons</div>
+    <div class="stat-value">{{ nb_boissons }}</div>
+    <div class="stat-sub">disponibles</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-label">Utilisateurs</div>
+    <div class="stat-value">{{ nb_utilisateurs }}</div>
+    <div class="stat-sub">inscrits</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⭐</div>
+    <div class="stat-label">Avis clients</div>
+    <div class="stat-value">{{ nb_avis }}</div>
+    <div class="stat-sub">publiés</div>
+  </div>
+</div>
+
+<!-- COMMANDES RÉCENTES -->
+<div class="table-card">
+  <div class="table-card-header">
+    <div class="table-card-title">🕐 Commandes récentes</div>
+    <a href="{% url 'admin_commandes' %}" class="btn btn-outline btn-sm">Voir tout →</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Client</th><th>Date</th><th>Total</th><th>Mode</th><th>Statut</th><th>Paiement</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cmd in commandes_recentes %}
+      <tr>
+        <td style="color:var(--or);font-weight:600;">#{{ cmd.pk }}</td>
+        <td>{{ cmd.utilisateur.username }}</td>
+        <td style="opacity:.6;">{{ cmd.date_commande|date:"d/m H:i" }}</td>
+        <td style="font-weight:600;color:var(--creme);">{{ cmd.total|floatformat:0 }} FCFA</td>
+        <td>{% if cmd.mode_recuperation == 'livraison' %}<span style="color:var(--or);font-size:.75rem;">🛵</span>{% else %}<span style="opacity:.5;font-size:.75rem;">🏃</span>{% endif %}</td>
+        <td>
+          <span class="statut {% if cmd.statut == 'en_attente' %}statut-attente{% elif cmd.statut == 'en_preparation' %}statut-preparation{% elif cmd.statut == 'prete' %}statut-prete{% else %}statut-livree{% endif %}">
+            {{ cmd.get_statut_display }}
+          </span>
+        </td>
+        <td>
+          {% if cmd.paye %}<span class="statut statut-paye">✓ Payé</span>
+          {% else %}<span class="statut statut-non-paye">⏳</span>{% endif %}
+        </td>
+        <td>
+          <a href="{% url 'detail_commande' cmd.pk %}" class="btn btn-outline btn-sm">Voir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

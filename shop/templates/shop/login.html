@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Médina — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --or: #c8922a;
+      --or-clair: #e8b84b;
+      --noir: #0d0c0a;
+      --brun: #1a1714;
+      --creme: #f5efe6;
+      --texte: #d4c8b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--noir);
+      color: var(--texte);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .left-panel {
+      background: var(--brun);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 30% 50%, rgba(200,146,42,0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(200,146,42,0.06) 0%, transparent 40%);
+    }
+
+    .brand {
+      position: relative;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 3.5rem;
+      color: var(--or);
+      line-height: 1;
+      display: block;
+    }
+
+    .brand-divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--or), transparent);
+      margin: 1.25rem auto;
+      width: 120px;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--texte);
+      opacity: 0.5;
+    }
+
+    .brand-tagline {
+      margin-top: 2rem;
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--texte);
+      opacity: 0.6;
+      line-height: 1.6;
+      text-align: center;
+      max-width: 280px;
+    }
+
+    .deco-items {
+      position: absolute;
+      font-size: 4rem;
+      opacity: 0.04;
+      user-select: none;
+    }
+
+    .right-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--creme);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.85rem;
+      color: var(--texte);
+      opacity: 0.6;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--or);
+      opacity: 0.8;
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,146,42,0.2);
+      border-radius: 8px;
+      color: var(--creme);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--or);
+      background: rgba(200,146,42,0.05);
+    }
+
+    .errorlist {
+      list-style: none;
+      color: #fca5a5;
+      font-size: 0.78rem;
+      margin-top: 0.3rem;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--or);
+      color: var(--noir);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      letter-spacing: 0.05em;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover { background: var(--or-clair); }
+
+    .form-link {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--texte);
+      opacity: 0.6;
+    }
+
+    .form-link a {
+      color: var(--or);
+      text-decoration: none;
+    }
+
+    .form-link a:hover { text-decoration: underline; }
+
+    .messages {
+      margin-bottom: 1rem;
+    }
+
+    .alert {
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+
+    @media (max-width: 700px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="left-panel">
+  <div class="deco-items" style="top:10%;left:5%;">🍽️</div>
+  <div class="deco-items" style="bottom:15%;right:8%;">🥘</div>
+  <div class="brand">
+    <span class="brand-name">Le Médina</span>
+    <div class="brand-divider"></div>
+    <div class="brand-sub">Restaurant • Bobo-Dioulasso</div>
+    <p class="brand-tagline">Des saveurs authentiques, livrées avec passion au cœur de la ville.</p>
+  </div>
+</div>
+
+<div class="right-panel">
+  <div class="form-box">
+    <h1 class="form-title">Connexion</h1>
+    <p class="form-subtitle">Bienvenue ! Connectez-vous pour commander.</p>
+
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn-submit">Se connecter →</button>
+    </form>
+
+    <div class="form-link">
+      Pas encore de compte ? <a href="{% url 'inscription' %}">Créer un compte</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

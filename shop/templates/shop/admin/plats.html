@@ -1,0 +1,49 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Plats — Admin{% endblock %}
+{% block page_title %}🍽️ Gestion des plats{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div style="font-size:.8rem;opacity:.5;">{{ plats|length }} plat(s)</div>
+  <a href="{% url 'admin_ajouter_plat' %}" class="btn btn-or">+ Ajouter un plat</a>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Pays</th><th>Dispo</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for plat in plats %}
+      <tr>
+        <td>
+          {% if plat.image %}
+          <img src="{{ plat.image.url }}" class="img-preview" alt="{{ plat.nom }}">
+          {% else %}
+          <div class="img-placeholder">🥘</div>
+          {% endif %}
+        </td>
+        <td style="font-weight:500;color:var(--creme);">{{ plat.nom }}</td>
+        <td style="opacity:.6;font-size:.78rem;">{{ plat.get_categorie_display }}</td>
+        <td style="color:var(--or);font-weight:600;">{{ plat.prix|floatformat:0 }} FCFA</td>
+        <td style="opacity:.6;font-size:.78rem;">{{ plat.pays }}</td>
+        <td>
+          {% if plat.disponible %}
+            <span class="statut statut-paye">✓ Oui</span>
+          {% else %}
+            <span class="statut statut-non-paye">✗ Non</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display:flex;gap:.3rem;">
+            <a href="{% url 'admin_modifier_plat' plat.pk %}" class="btn btn-outline btn-sm">✏️</a>
+            <a href="{% url 'admin_supprimer_plat' plat.pk %}" class="btn btn-danger btn-sm"
+              onclick="return confirm('Supprimer « {{ plat.nom }} » ?')">✕</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

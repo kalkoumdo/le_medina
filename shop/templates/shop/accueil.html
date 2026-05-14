@@ -1,0 +1,200 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Accueil — Le Médina{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    background: var(--brun);
+    border: 1px solid rgba(200,146,42,0.15);
+    border-radius: 16px;
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 50%, rgba(200,146,42,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--creme);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-text h2 span { color: var(--or); }
+
+  .hero-text p {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    max-width: 380px;
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-deco {
+    font-size: 5rem;
+    opacity: 0.15;
+    user-select: none;
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--brun);
+    border: 1px solid rgba(200,146,42,0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .stat-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--or);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    margin-top: 0.2rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text" style="position:relative;z-index:1;">
+      <h2>Bienvenue, <span>{{ user.username }}</span> !</h2>
+      <p>Découvrez notre sélection de plats et boissons. Ajoutez vos favoris au panier et commandez en quelques clics.</p>
+      <div class="hero-cta">
+        <a href="{% url 'plats' %}" class="btn btn-or">🍽️ Voir les plats</a>
+        <a href="{% url 'boissons' %}" class="btn btn-outline">🥤 Voir les boissons</a>
+      </div>
+    </div>
+    <div class="hero-deco">🥘</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-icon">🛒</div>
+      <div>
+        <div class="stat-value">{{ nb_panier }}</div>
+        <div class="stat-label">Article{{ nb_panier|pluralize }} au panier</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🍽️</div>
+      <div>
+        <div class="stat-value">{{ plats_vedette.count }}</div>
+        <div class="stat-label">Plats vedette</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🥤</div>
+      <div>
+        <div class="stat-value">{{ boissons_vedette.count }}</div>
+        <div class="stat-label">Boissons vedette</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATS EN VEDETTE -->
+  {% if plats_vedette %}
+  <div class="section-header">
+    <h3 class="section-title">⭐ Plats du moment</h3>
+    <a href="{% url 'plats' %}" class="btn btn-outline btn-sm">Voir tout →</a>
+  </div>
+
+  <div class="grid-cards" style="margin-bottom:2rem;">
+    {% for plat in plats_vedette %}
+    <div class="card">
+      <div class="card-img">
+        {% if plat.image %}
+          <img src="{{ plat.image.url }}" alt="{{ plat.nom }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          🥘
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="card-nom">{{ plat.nom }}</div>
+        {% if plat.description %}<div class="card-desc">{{ plat.description|truncatechars:60 }}</div>{% endif %}
+        <div class="card-footer">
+          <span class="prix">{{ plat.prix|floatformat:0 }} FCFA</span>
+          <a href="{% url 'ajouter_plat' plat.id %}" class="btn btn-or btn-sm">+ Panier</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- BOISSONS EN VEDETTE -->
+  {% if boissons_vedette %}
+  <div class="section-header">
+    <h3 class="section-title">⭐ Boissons du moment</h3>
+    <a href="{% url 'boissons' %}" class="btn btn-outline btn-sm">Voir tout →</a>
+  </div>
+
+  <div class="grid-cards">
+    {% for boisson in boissons_vedette %}
+    <div class="card">
+      <div class="card-img">
+        {% if boisson.image %}
+          <img src="{{ boisson.image.url }}" alt="{{ boisson.nom }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          🧃
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="card-nom">{{ boisson.nom }}</div>
+        {% if boisson.description %}<div class="card-desc">{{ boisson.description|truncatechars:60 }}</div>{% endif %}
+        <div class="card-footer">
+          <span class="prix">{{ boisson.prix|floatformat:0 }} FCFA</span>
+          <a href="{% url 'ajouter_boisson' boisson.id %}" class="btn btn-or btn-sm">+ Panier</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

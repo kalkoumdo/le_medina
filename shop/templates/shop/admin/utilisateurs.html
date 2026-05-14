@@ -1,0 +1,51 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Utilisateurs — Admin{% endblock %}
+{% block page_title %}👥 Utilisateurs{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div style="font-size:.8rem;opacity:.5;">{{ utilisateurs|length }} utilisateur(s)</div>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>Utilisateur</th><th>Email</th><th>Inscription</th><th>Rôle</th><th>Commandes</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for u in utilisateurs %}
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:.6rem;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a0711e,#c8922a);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:#0d0c0a;flex-shrink:0;">
+              {{ u.username|first|upper }}
+            </div>
+            <span style="font-weight:500;color:var(--creme);">{{ u.username }}</span>
+          </div>
+        </td>
+        <td style="opacity:.6;font-size:.8rem;">{{ u.email|default:"—" }}</td>
+        <td style="opacity:.5;font-size:.75rem;">{{ u.date_joined|date:"d/m/Y" }}</td>
+        <td>
+          {% if u.is_superuser %}
+            <span class="statut" style="background:rgba(239,68,68,0.15);color:#fca5a5;">Super Admin</span>
+          {% elif u.is_staff %}
+            <span class="statut" style="background:rgba(200,146,42,0.15);color:var(--or);">Staff</span>
+          {% else %}
+            <span class="statut statut-preparation">Client</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--or);font-weight:600;">{{ u.commande_set.count }}</td>
+        <td>
+          {% if u != request.user %}
+          <a href="{% url 'admin_supprimer_utilisateur' u.pk %}" class="btn btn-danger btn-sm"
+            onclick="return confirm('Supprimer « {{ u.username }} » et toutes ses données ?')">✕</a>
+          {% else %}
+          <span style="opacity:.3;font-size:.75rem;">Vous</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

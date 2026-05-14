@@ -1,0 +1,190 @@
+{% extends 'shop/base.html' %}
+{% block title %}Avis clients — Le Médina{% endblock %}
+
+{% block extra_css %}
+<style>
+  .avis-layout { display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start; }
+
+  /* FORMULAIRE */
+  .form-card {
+    background:var(--brun); border:1px solid rgba(200,146,42,0.15);
+    border-radius:12px; padding:1.5rem; position:sticky; top:1rem;
+  }
+  .form-card h3 {
+    font-family:'Playfair Display',serif; font-size:1.1rem;
+    color:var(--creme); margin-bottom:1.25rem;
+  }
+  .form-label {
+    display:block; font-size:.7rem; text-transform:uppercase;
+    letter-spacing:.1em; color:var(--or); opacity:.8; margin-bottom:.4rem;
+  }
+  .form-textarea {
+    width:100%; background:rgba(0,0,0,0.2); border:1px solid rgba(200,146,42,0.2);
+    border-radius:8px; padding:.7rem .9rem; color:var(--creme);
+    font-family:'DM Sans',sans-serif; font-size:.875rem; resize:vertical;
+    outline:none; min-height:100px; box-sizing:border-box; margin-bottom:1rem;
+  }
+  .form-textarea:focus { border-color:rgba(200,146,42,0.5); }
+  .form-textarea::placeholder { opacity:.4; }
+
+  /* ÉTOILES */
+  .stars-input { display:flex; gap:.25rem; margin-bottom:1rem; flex-direction:row-reverse; justify-content:flex-end; }
+  .stars-input input { display:none; }
+  .stars-input label {
+    font-size:1.6rem; cursor:pointer; color:rgba(200,146,42,0.2);
+    transition:color .15s;
+  }
+  .stars-input input:checked ~ label,
+  .stars-input label:hover,
+  .stars-input label:hover ~ label {
+    color:var(--or);
+  }
+
+  /* CARTE AVIS */
+  .avis-card {
+    background:var(--brun); border:1px solid rgba(200,146,42,0.1);
+    border-radius:12px; padding:1.25rem; margin-bottom:1rem;
+    transition: border-color .2s;
+  }
+  .avis-card.mon-avis { border-color:rgba(200,146,42,0.35); }
+  .avis-header { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+  .avis-avatar {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,var(--or-fonce),var(--or));
+    display:flex; align-items:center; justify-content:center;
+    font-size:.85rem; font-weight:600; color:var(--noir); flex-shrink:0;
+  }
+  .avis-nom { font-weight:500; color:var(--creme); font-size:.875rem; }
+  .avis-date { font-size:.7rem; opacity:.45; margin-top:.1rem; }
+  .avis-etoiles { margin-left:auto; font-size:1rem; letter-spacing:.05rem; }
+  .avis-contenu { font-size:.875rem; line-height:1.6; color:var(--texte); }
+  .mon-avis-badge {
+    display:inline-block; font-size:.65rem; text-transform:uppercase;
+    letter-spacing:.1em; color:var(--or); background:rgba(200,146,42,0.1);
+    border:1px solid rgba(200,146,42,0.2); border-radius:999px;
+    padding:.1rem .5rem; margin-bottom:.5rem;
+  }
+
+  /* STATS GLOBALES */
+  .note-globale {
+    text-align:center; padding:1rem 0 1.25rem;
+    border-bottom:1px solid rgba(200,146,42,0.1); margin-bottom:1.25rem;
+  }
+  .note-chiffre { font-size:2.5rem; font-weight:700; color:var(--or); line-height:1; }
+  .note-etoiles { font-size:1.2rem; margin:.25rem 0; }
+  .note-total { font-size:.75rem; opacity:.45; }
+
+  @media(max-width:768px){ .avis-layout{ grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+
+  <div class="section-header">
+    <h2 class="section-title">⭐ Avis clients</h2>
+  </div>
+
+  <div class="avis-layout">
+
+    <!-- LISTE DES AVIS -->
+    <div>
+      {% if avis %}
+        {% for a in avis %}
+        <div class="avis-card {% if a.utilisateur == request.user %}mon-avis{% endif %}">
+          {% if a.utilisateur == request.user %}
+            <div class="mon-avis-badge">Mon avis</div>
+          {% endif %}
+          <div class="avis-header">
+            <div class="avis-avatar">{{ a.utilisateur.username|first|upper }}</div>
+            <div>
+              <div class="avis-nom">{{ a.utilisateur.username }}</div>
+              <div class="avis-date">{{ a.date|date:"d/m/Y" }}</div>
+            </div>
+            <div class="avis-etoiles">
+              {% for i in "12345" %}
+                {% if forloop.counter <= a.note %}⭐{% else %}☆{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="avis-contenu">{{ a.contenu }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">💬</div>
+          <p>Aucun avis pour l'instant. Soyez le premier !</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- FORMULAIRE -->
+    <div class="form-card">
+
+      <!-- Note moyenne -->
+      {% if avis %}
+      <div class="note-globale">
+        {% with total=avis|length %}
+          <div class="note-chiffre" id="note-moy">—</div>
+          <div class="note-etoiles">⭐⭐⭐⭐⭐</div>
+          <div class="note-total">{{ total }} avis</div>
+        {% endwith %}
+      </div>
+      {% endif %}
+
+      <h3>{% if mon_avis %}Modifier mon avis{% else %}Laisser un avis{% endif %}</h3>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <label class="form-label">Note</label>
+        <div class="stars-input">
+          {% for i in "54321" %}
+          <input type="radio" name="note" id="star{{ forloop.counter }}" value="{{ i }}"
+            {% if mon_avis and mon_avis.note == forloop.counter %}checked{% endif %}
+            {% if not mon_avis and i == "5" %}checked{% endif %}>
+          <label for="star{{ forloop.counter }}">★</label>
+          {% endfor %}
+        </div>
+
+        <label class="form-label" for="contenu">Votre commentaire</label>
+        <textarea name="contenu" id="contenu" class="form-textarea"
+          placeholder="Partagez votre expérience…">{% if mon_avis %}{{ mon_avis.contenu }}{% endif %}</textarea>
+
+        <button type="submit" class="btn btn-or" style="width:100%;justify-content:center;padding:.8rem;">
+          {% if mon_avis %}✏️ Mettre à jour{% else %}💬 Publier mon avis{% endif %}
+        </button>
+      </form>
+
+      {% if mon_avis %}
+      <a href="{% url 'supprimer_avis' %}" class="btn btn-danger"
+        style="width:100%;justify-content:center;margin-top:.75rem;"
+        onclick="return confirm('Supprimer votre avis ?')">
+        🗑️ Supprimer mon avis
+      </a>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Calcul de la note moyenne côté client
+  var notes = [{% for a in avis %}{{ a.note }},{% endfor %}];
+  if (notes.length > 0) {
+    var moy = notes.reduce(function(a,b){ return a+b; }, 0) / notes.length;
+    var el = document.getElementById('note-moy');
+    if (el) el.textContent = moy.toFixed(1);
+  }
+
+  // Correction ordre des étoiles (row-reverse)
+  var radios = document.querySelectorAll('.stars-input input[type=radio]');
+  radios.forEach(function(r) {
+    r.addEventListener('change', function() {
+      // rien de spécial, CSS gère l'affichage
+    });
+  });
+</script>
+{% endblock %}

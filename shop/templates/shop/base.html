@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Le Médina{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --or: #c8922a; --or-clair: #e8b84b; --or-fonce: #a0711e;
+      --noir: #0d0c0a; --brun: #1a1714; --brun-moyen: #2a2520;
+      --brun-clair: #3d352c; --creme: #f5efe6; --creme-fonce: #e8ddd0;
+      --texte: #d4c8b8; --texte-clair: #f5efe6; --sidebar-w: 260px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--noir); color: var(--texte); min-height: 100vh; display: flex; }
+    .sidebar { width: var(--sidebar-w); background: var(--brun); border-right: 1px solid rgba(200,146,42,0.15); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; z-index: 100; overflow: hidden; }
+    .sidebar-logo { padding: 2rem 1.5rem 1.5rem; border-bottom: 1px solid rgba(200,146,42,0.15); }
+    .sidebar-logo .logo-ar { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.8rem; color: var(--or); line-height: 1; }
+    .sidebar-logo .logo-sub { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--texte); opacity: 0.6; margin-top: 0.25rem; }
+    .sidebar-user { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(200,146,42,0.1); display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--or-fonce), var(--or)); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 500; color: var(--noir); flex-shrink: 0; }
+    .user-name { font-size: 0.85rem; font-weight: 500; color: var(--creme); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-section { padding: 0.5rem 1.5rem 0.25rem; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--or); opacity: 0.6; }
+    .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.5rem; color: var(--texte); text-decoration: none; font-size: 0.875rem; font-weight: 400; transition: all 0.2s; position: relative; }
+    .nav-link:hover { color: var(--or-clair); background: rgba(200,146,42,0.07); }
+    .nav-link.active { color: var(--or); background: rgba(200,146,42,0.1); }
+    .nav-link.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--or); border-radius: 0 2px 2px 0; }
+    .nav-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .badge { margin-left: auto; background: var(--or); color: var(--noir); font-size: 0.65rem; font-weight: 600; padding: 0.1rem 0.45rem; border-radius: 999px; min-width: 18px; text-align: center; }
+    .sidebar-footer { padding: 1rem 0; border-top: 1px solid rgba(200,146,42,0.1); }
+    .main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .content { flex: 1; padding: 2rem; }
+    .messages-container { padding: 0 2rem; padding-top: 1rem; }
+    .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; }
+    .alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+    .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+    .card { background: var(--brun); border: 1px solid rgba(200,146,42,0.1); border-radius: 12px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+    .card:hover { transform: translateY(-2px); border-color: rgba(200,146,42,0.3); }
+    .card-img { width: 100%; height: 160px; object-fit: cover; background: var(--brun-moyen); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .card-body { padding: 1rem; }
+    .card-nom { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--creme); margin-bottom: 0.25rem; }
+    .card-desc { font-size: 0.8rem; color: var(--texte); opacity: 0.7; margin-bottom: 0.75rem; line-height: 1.4; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .prix { font-size: 1rem; font-weight: 600; color: var(--or); }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+    .btn-or { background: var(--or); color: var(--noir); }
+    .btn-or:hover { background: var(--or-clair); }
+    .btn-outline { background: transparent; border: 1px solid rgba(200,146,42,0.4); color: var(--or); }
+    .btn-outline:hover { background: rgba(200,146,42,0.1); }
+    .btn-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+    .table-container { background: var(--brun); border: 1px solid rgba(200,146,42,0.1); border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.75rem 1rem; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--or); opacity: 0.7; background: rgba(200,146,42,0.05); text-align: left; }
+    td { padding: 0.75rem 1rem; font-size: 0.875rem; border-top: 1px solid rgba(200,146,42,0.07); color: var(--texte); }
+    tr:hover td { background: rgba(200,146,42,0.03); }
+    .statut { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 500; }
+    .statut-attente { background: rgba(251,191,36,0.15); color: #fcd34d; }
+    .statut-preparation { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .statut-prete { background: rgba(34,197,94,0.15); color: #86efac; }
+    .statut-livree { background: rgba(200,146,42,0.15); color: var(--or); }
+    .statut-paye { background: rgba(34,197,94,0.15); color: #86efac; }
+    .statut-non-paye { background: rgba(239,68,68,0.15); color: #fca5a5; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--texte); opacity: 0.5; }
+    .empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--creme); }
+    .divider { height: 1px; background: linear-gradient(to right, rgba(200,146,42,0.3), transparent); margin: 1.5rem 0; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-ar">Le Médina</div>
+    <div class="logo-sub">Restaurant • Bobo-Dioulasso</div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ user.username|first|upper }}</div>
+    <div class="user-name">{{ user.username }}</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Navigation</div>
+    <a href="{% url 'accueil' %}" class="nav-link {% if request.resolver_match.url_name == 'accueil' %}active{% endif %}">
+      <span class="nav-icon">🏠</span> Accueil
+    </a>
+    <a href="{% url 'plats' %}" class="nav-link {% if request.resolver_match.url_name == 'plats' %}active{% endif %}">
+      <span class="nav-icon">🍽️</span> Plats
+    </a>
+    <a href="{% url 'boissons' %}" class="nav-link {% if request.resolver_match.url_name == 'boissons' %}active{% endif %}">
+      <span class="nav-icon">🥤</span> Boissons
+    </a>
+    <a href="{% url 'avis' %}" class="nav-link {% if request.resolver_match.url_name == 'avis' %}active{% endif %}">
+      <span class="nav-icon">⭐</span> Avis clients
+    </a>
+
+    <div class="nav-section" style="margin-top:0.5rem;">Mes commandes</div>
+    <a href="{% url 'panier' %}" class="nav-link {% if request.resolver_match.url_name == 'panier' %}active{% endif %}">
+      <span class="nav-icon">🛒</span> Panier
+      {% if nb_panier %}<span class="badge">{{ nb_panier }}</span>{% endif %}
+    </a>
+    <a href="{% url 'commandes' %}" class="nav-link {% if request.resolver_match.url_name == 'commandes' or request.resolver_match.url_name == 'detail_commande' %}active{% endif %}">
+      <span class="nav-icon">📋</span> Mes commandes
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    {% if user.is_staff %}
+    <a href="{% url 'admin_dashboard' %}" class="nav-link" style="color:var(--or);border-top:1px solid rgba(200,146,42,0.15);margin-bottom:.25rem;">
+      <span class="nav-icon">⚙️</span> Panel Admin
+    </a>
+    {% endif %}
+    <a href="{% url 'supprimer_compte' %}" class="nav-link" style="color:#fca5a5;">
+      <span class="nav-icon">🗑️</span> Supprimer mon compte
+    </a>
+    <a href="{% url 'logout' %}" class="nav-link">
+      <span class="nav-icon">🚪</span> Déconnexion
+    </a>
+  </div>
+</aside>
+{% endif %}
+
+<main class="main">
+  {% if user.is_authenticated %}
+  {% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {% if message.tags == 'success' %}✅{% else %}⚠️{% endif %}
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

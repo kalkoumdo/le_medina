@@ -1,0 +1,49 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Boissons — Admin{% endblock %}
+{% block page_title %}🥤 Gestion des boissons{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div style="font-size:.8rem;opacity:.5;">{{ boissons|length }} boisson(s)</div>
+  <a href="{% url 'admin_ajouter_boisson' %}" class="btn btn-or">+ Ajouter une boisson</a>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Pays</th><th>Dispo</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for boisson in boissons %}
+      <tr>
+        <td>
+          {% if boisson.image %}
+          <img src="{{ boisson.image.url }}" class="img-preview" alt="{{ boisson.nom }}">
+          {% else %}
+          <div class="img-placeholder">🥤</div>
+          {% endif %}
+        </td>
+        <td style="font-weight:500;color:var(--creme);">{{ boisson.nom }}</td>
+        <td style="opacity:.6;font-size:.78rem;">{{ boisson.get_categorie_display }}</td>
+        <td style="color:var(--or);font-weight:600;">{{ boisson.prix|floatformat:0 }} FCFA</td>
+        <td style="opacity:.6;font-size:.78rem;">{{ boisson.pays }}</td>
+        <td>
+          {% if boisson.disponible %}
+            <span class="statut statut-paye">✓ Oui</span>
+          {% else %}
+            <span class="statut statut-non-paye">✗ Non</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display:flex;gap:.3rem;">
+            <a href="{% url 'admin_modifier_boisson' boisson.pk %}" class="btn btn-outline btn-sm">✏️</a>
+            <a href="{% url 'admin_supprimer_boisson' boisson.pk %}" class="btn btn-danger btn-sm"
+              onclick="return confirm('Supprimer « {{ boisson.nom }} » ?')">✕</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

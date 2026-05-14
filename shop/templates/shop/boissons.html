@@ -1,0 +1,55 @@
+{% extends 'shop/base.html' %}
+{% block title %}Boissons — Le Médina{% endblock %}
+
+{% block content %}
+<div class="content">
+
+  <div class="section-header">
+    <h2 class="section-title">🥤 Nos Boissons</h2>
+  </div>
+
+  <!-- FILTRE CATÉGORIES -->
+  {% if categories %}
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+    <a href="{% url 'boissons' %}" class="btn btn-sm {% if not cat_id %}btn-or{% else %}btn-outline{% endif %}">Tous</a>
+    {% for valeur, label in categories %}
+    <a href="?categorie={{ valeur }}" class="btn btn-sm {% if cat_id == valeur %}btn-or{% else %}btn-outline{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}  
+
+
+  {% if boissons %}
+  <div class="grid-cards">
+    {% for boisson in boissons %}
+    <div class="card">
+      <div class="card-img">
+        {% if boisson.image %}
+          <img src="{{ boisson.image.url }}" alt="{{ boisson.nom }}" style="width:150%;height: 205px;object-fit:cover;">
+        {% else %}
+          🧃
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <div class="card-nom">{{ boisson.nom }}</div>
+       <!-- {% if boisson.pays%}<div style="font-size:0.7rem;opacity:0.5;margin-bottom:0.3rem;">🌍 {{ Boisson.get_pays_display }}</div>{% endif %}-->
+        {% if boisson.description %}<div class="card-desc">{{ boisson.description|truncatechars:80 }}</div>{% endif %}
+        <div class="card-footer">
+          <span class="prix">{{ boisson.prix|floatformat:0 }} FCFA</span>
+          <a href="{% url 'ajouter_boisson' boisson.id %}" class="btn btn-or btn-sm">🛒 Ajouter</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🥤</div>
+    <p>Aucune boisson disponible pour le moment.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

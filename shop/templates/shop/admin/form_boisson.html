@@ -1,0 +1,67 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}{{ action }} une boisson — Admin{% endblock %}
+{% block page_title %}🥤 {{ action }} une boisson{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div></div>
+  <a href="{% url 'admin_boissons' %}" class="btn btn-outline btn-sm">← Retour</a>
+</div>
+
+<div class="form-card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label class="form-label">Nom de la boisson *</label>
+      <input type="text" name="nom" class="form-input" value="{{ boisson.nom|default:'' }}" placeholder="Ex : Jus de bissap" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Prix (FCFA) *</label>
+      <input type="number" name="prix" class="form-input" value="{{ boisson.prix|default:'' }}" placeholder="Ex : 500" min="0" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Catégorie</label>
+      <select name="categorie" class="form-select">
+        <option value="">— Choisir —</option>
+        {% for val, label in categories %}
+        <option value="{{ val }}" {% if boisson.categorie == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Pays d'origine</label>
+      <select name="pays" class="form-select">
+        <option value="">— Choisir —</option>
+        {% for val, label in pays_choices %}
+        <option value="{{ val }}" {% if boisson.pays == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Image</label>
+      {% if boisson.image %}
+        <div style="margin-bottom:.5rem;">
+          <img src="{{ boisson.image.url }}" style="height:80px;border-radius:8px;object-fit:cover;">
+        </div>
+      {% endif %}
+      <input type="file" name="image" class="form-input" accept="image/*" style="padding:.4rem;">
+    </div>
+
+    <div class="form-group">
+      <label class="form-check">
+        <input type="checkbox" name="disponible" {% if boisson.disponible or not boisson %}checked{% endif %}>
+        Disponible à la vente
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-or" style="padding:.75rem 2rem;">
+      {% if action == 'Modifier' %}✏️ Enregistrer les modifications{% else %}+ Ajouter la boisson{% endif %}
+    </button>
+  </form>
+</div>
+{% endblock %}

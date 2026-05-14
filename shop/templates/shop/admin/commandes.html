@@ -1,0 +1,70 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Commandes — Admin{% endblock %}
+{% block page_title %}📋 Gestion des commandes{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <a href="{% url 'admin_commandes' %}" class="btn {% if not statut_filtre %}btn-or{% else %}btn-outline{% endif %} btn-sm">Toutes</a>
+    {% for val, label in statuts %}
+    <a href="?statut={{ val }}" class="btn {% if statut_filtre == val %}btn-or{% else %}btn-outline{% endif %} btn-sm">{{ label }}</a>
+    {% endfor %}
+  </div>
+  <div style="font-size:.8rem;opacity:.5;">{{ commandes|length }} commande(s)</div>
+</div>
+
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>#</th><th>Client</th><th>Date</th><th>Total</th><th>Mode</th><th>Statut</th><th>Paiement</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for cmd in commandes %}
+      <tr>
+        <td style="color:var(--or);font-weight:600;">#{{ cmd.pk }}</td>
+        <td>{{ cmd.utilisateur.username }}</td>
+        <td style="opacity:.6;font-size:.78rem;">{{ cmd.date_commande|date:"d/m/Y H:i" }}</td>
+        <td style="font-weight:600;color:var(--creme);">{{ cmd.total|floatformat:0 }} FCFA</td>
+        <td>
+          {% if cmd.mode_recuperation == 'livraison' %}
+            <span style="color:var(--or);">🛵 Livraison</span>
+          {% else %}
+            <span style="opacity:.5;">🏃 Retrait</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" action="{% url 'admin_changer_statut' cmd.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <select name="statut" onchange="this.form.submit()"
+              style="background:transparent;border:1px solid rgba(200,146,42,0.2);color:var(--texte);border-radius:6px;padding:.2rem .4rem;font-size:.75rem;cursor:pointer;">
+              {% for val, label in statuts %}
+              <option value="{{ val }}" {% if cmd.statut == val %}selected{% endif %} style="background:#1a1714;">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+        <td>
+          {% if cmd.paye %}
+            <span class="statut statut-paye">✓ Payé</span>
+          {% else %}
+            <span class="statut statut-non-paye">⏳ En attente</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
+            <a href="{% url 'detail_commande' cmd.pk %}" class="btn btn-outline btn-sm">👁</a>
+            {% if not cmd.paye %}
+            <a href="{% url 'admin_confirmer_paiement' cmd.pk %}" class="btn btn-success btn-sm"
+              onclick="return confirm('Confirmer le paiement en espèces de la commande #{{ cmd.pk }} ?')"
+              title="Confirmer paiement espèces">💵 Confirmer</a>
+            {% endif %}
+            <a href="{% url 'admin_supprimer_commande' cmd.pk %}" class="btn btn-danger btn-sm"
+              onclick="return confirm('Supprimer la commande #{{ cmd.pk }} ?')">✕</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

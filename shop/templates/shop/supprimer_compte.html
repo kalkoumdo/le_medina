@@ -1,0 +1,20 @@
+{% extends 'shop/base.html' %}
+{% block title %}Supprimer mon compte{% endblock %}
+{% block content %}
+<div class="content">
+  <div class="empty-state" style="opacity:1;">
+    <div class="empty-icon">⚠️</div>
+    <h2 class="section-title" style="margin-bottom:1rem;">Supprimer mon compte</h2>
+    <p style="margin-bottom:2rem;opacity:0.7;">Cette action est irréversible. Toutes vos données seront supprimées.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger" style="padding:.75rem 2rem;font-size:1rem;">
+        🗑️ Confirmer la suppression
+      </button>
+    </form>
+    <a href="{% url 'accueil' %}" class="btn btn-outline" style="margin-top:1rem;">
+      ← Annuler
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'shop/admin/base.html' %}
+{% block title %}Avis clients — Admin{% endblock %}
+{% block page_title %}⭐ Avis clients{% endblock %}
+{% block content %}
+
+<div class="section-header">
+  <div style="font-size:.8rem;opacity:.5;">{{ avis|length }} avis</div>
+</div>
+
+{% if avis %}
+<div class="table-card">
+  <table>
+    <thead>
+      <tr><th>Client</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for a in avis %}
+      <tr>
+        <td style="font-weight:500;color:var(--creme);">{{ a.utilisateur.username }}</td>
+        <td>
+          <span style="color:var(--or);">
+            {% for i in "12345" %}{% if forloop.counter <= a.note %}★{% else %}☆{% endif %}{% endfor %}
+          </span>
+        </td>
+        <td style="max-width:320px;opacity:.8;">{{ a.contenu|truncatechars:80 }}</td>
+        <td style="opacity:.5;font-size:.75rem;">{{ a.date|date:"d/m/Y" }}</td>
+        <td>
+          <a href="{% url 'admin_supprimer_avis' a.pk %}" class="btn btn-danger btn-sm"
+            onclick="return confirm('Supprimer cet avis ?')">✕</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div style="text-align:center;padding:3rem;opacity:.4;">
+  <div style="font-size:2.5rem;margin-bottom:.75rem;">⭐</div>
+  <p>Aucun avis pour le moment.</p>
+</div>
+{% endif %}
+{% endblock %}
