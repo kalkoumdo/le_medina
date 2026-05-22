@@ -8,7 +8,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-54mzyr!uo)_nnmeedmkv7i56l34-*gupz8=o7g%%e24yhz(5yw')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+# Django 4.x exige que chaque entrée dans CSRF_TRUSTED_ORIGINS contienne un schéma (http:// ou https://)
+# On normalise donc les valeurs provenant des variables d'environnement.
+_raw_csrf_trusted = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+_csrf_trusted_parts = [p.strip() for p in _raw_csrf_trusted.split(',') if p.strip()]
+csrf_scheme_default = 'http' if DEBUG else 'https'
+CSRF_TRUSTED_ORIGINS = [
+    (p if p.startswith(('http://', 'https://')) else f"{csrf_scheme_default}://{p}")
+    for p in _csrf_trusted_parts
+]
 
 # ── APPLICATIONS ──────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -66,11 +74,14 @@ if DATABASE_URL:
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "medina_db",
+            "USER": "medina_user",
+            "PASSWORD": "tonmotdepasse",
+            "HOST": "localhost",
+            "PORT": "5432",
         }
     }
-
 # ── VALIDATION MOTS DE PASSE ──────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
